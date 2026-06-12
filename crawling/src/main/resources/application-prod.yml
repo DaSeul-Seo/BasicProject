@@ -1,0 +1,11 @@
+spring:
+    application:
+        name: crawling
+
+server:
+    port: 8080
+
+serpapi:
+    api-key: 
+    url: ""
+    # engine: "google"
