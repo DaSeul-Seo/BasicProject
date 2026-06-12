@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Link Update</title>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header">
+                <h3>링크 수정</h3>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/links/{id}/edit(id=${link.id})}" method="post">
+                    <input type="hidden"
+                            th:name="${_csrf.parameterName}"
+                            th:value="${_csrf.token}">
+                    <input type="hidden" name="page" th:value="${page}">
+                    <input type="hidden" name="keyword" th:value="${keyword}">
+                    <input type="hidden" name="filter" th:value="${filter}">
+                    <input type="hidden" name="sort" th:value="${sort}">
+                    <input type="hidden" name="selectedCategoryId" th:value="${categoryId}">
+                    
+                    <!-- 제목 -->
+                    <div class="mb-3">
+                        <label class="form-label">제목</label>
+                        <input type="text" name="title" class="form-control" th:value="${link.title}">
+                    </div>
+
+                    <!-- URL -->
+                    <div class="mb-3">
+                        <label class="form-label">URL</label>
+                        <input type="text" name="url" class="form-control" th:value="${link.url}">
+                    </div>
+
+                    <!-- 카테고리 -->
+                    <div class="mb-3">
+                        <label class="form-label">카테고리</label>
+                        <select name="categoryId" class="form-select">
+                            <option th:each="category : ${categories}"
+                                    th:value="${category.id}"
+                                    th:text="${category.name}"
+                                    th:selected="${category.id == link.category.id}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- 태그 -->
+                    <div class="mb-3">
+                        <label class="form-label">태그</label>
+                        <input type="text" name="tags" class="form-control" placeholder="spring,jpa,security" th:value="${tagNames}">
+                    </div>
+
+                    <!-- 메모 -->
+                    <div class="mb-3">
+                        <label class="form-label">메모</label>
+                        <textarea name="memo" class="form-control" rows="4" th:text="${link.memo}"></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a th:href="@{/links}"
+                            class="btn btn-secondary">
+                            취소
+                        </a>
+                        <button type="submit"
+                                class="btn btn-primary">
+                                저장
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>    
+</body>
+</html>
