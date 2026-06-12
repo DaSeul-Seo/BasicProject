@@ -1,0 +1,22 @@
+2026-06-08 10:33:02.846246+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "SITEUSER" not found; SQL statement:
+select * from siteuser [42102-232]
+2026-06-09 17:39:47.452667+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Value too long for column "THUMBNAIL CHARACTER VARYING(255)": "'https://img1.daumcdn.net/thumb/R800x0/?scode=mtistory2&fname=https%3A%2F%2Fblog... (353)"; SQL statement:
+insert into link (category_id,created_at,description,favorite,memo,read_at,thumbnail,title,updated_at,url,site_user_id,id) values (?,?,?,?,?,?,?,?,?,?,?,default) [22001-232]
+2026-06-11 15:57:06.871126+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM LINK \000d\000a[*]select * from SITE_USER"; SQL statement:
+SELECT * FROM LINK 
+select * from SITE_USER [42000-232]
+2026-06-11 15:57:09.540343+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM LINK \000d\000a[*]select * from SITE_USER"; SQL statement:
+SELECT * FROM LINK 
+select * from SITE_USER [42000-232]
+2026-06-11 15:57:13.731123+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM LINK \000d\000a[*]select * from SITE_USER"; SQL statement:
+SELECT * FROM LINK 
+select * from SITE_USER [42000-232]
+2026-06-11 15:57:14.642134+09:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM LINK \000d\000a[*]select * from SITE_USER"; SQL statement:
+SELECT * FROM LINK 
+select * from SITE_USER [42000-232]
