@@ -1,0 +1,33 @@
+﻿@model MiniDesk.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "로그인";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="text-center mb-4">MiniDesc</h3>
+                <form asp-action="Login" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">이메일</label>
+                        <input asp-for="Email" class="form-control" placeholder="이메일을 입력하세요." />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label">비밀번호</label>
+                        <input asp-for="Password" type="password" class="form-control" placeholder="비밀번호를 입력하세요." />
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">로그인</button>
+                </form>
+                <hr />
+                <div class="small text-muted">
+                    테스트 계정 <br />
+                    admin@minidesk.com <br />
+                    user@minidesk.com
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

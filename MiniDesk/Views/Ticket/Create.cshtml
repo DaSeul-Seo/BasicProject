@@ -1,0 +1,40 @@
+﻿@model MiniDesk.ViewModels.TicketCreateViewModel
+
+@{
+    ViewData["Title"] = "요청등록";
+}
+
+<h2 class="mb-4">업무 요청 등록</h2>
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label">제목</label>
+        <input asp-for="Title" class="form-control" />
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label asp-for="Category" class="form-label">카테고리</label>
+            <select asp-for="Category" class="form-select">
+                <option value="시스템">시스템</option>
+                <option value="권한">권한</option>
+                <option value="계정">계정</option>
+                <option value="기타">기타</option>
+            </select>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="Priority" class="form-label">우선순위</label>
+            <select asp-for="Priority" class="form-select">
+                <option value="0">낮음</option>
+                <option value="1">보통</option>
+                <option value="2">높음</option>
+                <option value="3">긴급</option>
+            </select>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Content" class="form-label">내용</label>
+        <textarea asp-for="Content" class="form-control" rows="8"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">등록</button>
+    <a asp-action="Index" class="btn btn-secondary">취소</a>
+</form>

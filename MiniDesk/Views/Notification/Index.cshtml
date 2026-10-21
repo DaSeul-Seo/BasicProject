@@ -1,0 +1,44 @@
+﻿@model List<MiniDesk.Models.Notification>
+
+@{
+    ViewData["Title"] = "알림";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>알림</h2>
+</div>
+
+<div class="card shadow-sm">
+    <div class="list-group list-group-flush">
+        @if (Model.Any())
+        {
+            foreach (var notification in Model)
+            {
+                <a asp-controller="Notification"
+                    asp-action="Read"
+                    asp-route-id="@notification.Id"
+                    class="list-group-item list-group-item-action @(notification.IsRead ? "" : "bg-light")">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="fw-bold">
+                                @if (!notification.IsRead)
+                                {
+                                    <span class="text-primary">●</span>
+                                }
+                                @notification.Title
+                            </div>
+                            <div class="text-muted">@notification.Message</div>
+                        </div>
+                        <div class="text-muted small">
+                            @notification.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                        </div>
+                    </div>
+                </a>
+            }
+        }
+        else
+        {
+            <div class="p-5 text-center text-muted">알림이 없습니다.</div>
+        }
+    </div>
+</div>

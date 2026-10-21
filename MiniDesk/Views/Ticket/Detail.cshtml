@@ -1,0 +1,240 @@
+﻿@model MiniDesk.ViewModels.TicketDetailViewModel
+@using MiniDesk.Models
+
+@{
+    ViewData["Title"] = "요청 상세";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2>@Model.Ticket.Title</h2>
+        <span class="text-muted">#@Model.Ticket.Id</span>
+    </div>
+    <a asp-action="Index" class="btn btn-secondary">목록</a>
+</div>
+
+<!-- 기본정보 -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="text-muted small">상태</div>
+                <div class="mt-1">
+                    <form asp-action="ChangeStatus" method="post">
+                        <input type="hidden" name="id" value="@Model.Ticket.Id" />
+                        <select name="status" class="form-select" onchange="this.form.submit()">
+                            <option value="0" selected="@(Model.Ticket.Status == TicketStatus.Pending ? "selected" : null)">대기</option>
+                            <option value="1" selected="@(Model.Ticket.Status == TicketStatus.InProgress ? "selected" : null)">처리중</option>
+                            <option value="2" selected="@(Model.Ticket.Status == TicketStatus.Completed ? "selected" : null)">완료</option>
+                            @* <option value="@TicketStatus.Pending" selected="@(Model.Ticket.Status == TicketStatus.Pending)">대기</option>
+                            <option value="@TicketStatus.InProgress" selected="@(Model.Ticket.Status == TicketStatus.InProgress)">처리중</option>
+                            <option value="@TicketStatus.Completed" selected="@(Model.Ticket.Status == TicketStatus.Completed)">완료</option> *@
+                            @* <option value="@TicketPriority.Critical" selected="@(Model.Ticket.Priority == TicketPriority.Critical)">긴급</option> *@
+                        </select>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-muted small">우선순위</div>
+                <div class="mt-1">@GetPriorityText(Model.Ticket.Priority)</div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-muted small">요청자</div>
+                <div class="mt-1">@Model.Ticket.Requester.Name</div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-muted small">담당자</div>
+                <div class="mt-1">
+                    <!-- 담당자 선택 -->
+                    <form asp-action="ChangeAssignee" method="post">
+                        <input type="hidden" name="id" value="@Model.Ticket.Id" />
+                        <select name="assigneeId" class="form-select" onchange="this.form.submit()">
+                            <option value="">미지정</option>
+
+                            @foreach (var user in Model.Users)
+                            {
+                                <option value="@user.Id" selected="@(Model.Ticket.AssigneeId == user.Id ? "selected" : null)">@user.Name</option>
+                                @* <option value="@user.Id" selected="@(Model.Ticket.AssigneeId == user.Id)">@user.Name</option> *@
+                            }
+                        </select>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 요청내용 -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <strong>요청내용</strong>
+    </div>
+    <div class="card-body">
+        <div style="white-space: pre-wrap;">@Model.Ticket.Content</div>
+    </div>
+</div>
+
+<!-- 댓글 -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <strong>댓글</strong>
+    </div>
+    <div class="card-body">
+        @if (Model.Comments.Any())
+        {
+            foreach (var comment in Model.Comments.OrderBy(x => x.CreatedAt))
+            {
+                <div class="border-bottom pb-3 mb-3">
+                    <div class="fw-bold">
+                        @comment.User.Name
+                    </div>
+                    <div class="text-muted small mb-2">
+                        @comment.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                    </div>
+                    <div>@comment.Content</div>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="text-muted">
+                아직 댓글이 없습니다.
+            </p>
+        }
+
+        <form asp-action="AddComment" method="post">
+            <input type="hidden" name="id" value="@Model.Ticket.Id" />
+            <div class="input-group">
+                <input type="text" name="content" class="form-control" placeholder="댓글을 입력하세요." />
+                <button type="submit" class="btn btn-primary">등록</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 첨부파일 -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <strong>첨부파일</strong>
+    </div>
+    <div class="card-body">
+        <form asp-action="UploadAttachment" method="post" enctype="multipart/form-data" class="mb-4">
+            <input type="hidden" name="id" value="@Model.Ticket.Id" />
+            <div class="input-group">
+                <input type="file" name="file" class="form-control" />
+                <button type="submit" class="btn btn-primary">업로드</button>
+            </div>
+        </form>
+
+        <!-- 파일 목록 -->
+        @if (Model.Ticket.Attachments.Any())
+        {
+            <div class="list-group">
+                @foreach (var attachment in Model.Ticket.Attachments.OrderByDescending(x => x.CreatedAt))
+                {
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold">@attachment.FileName</div>
+                                <div class="text-muted small">
+                                    @FormatFileSize(attachment.FileSize)
+                                    .
+                                    @attachment.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                                </div>
+                            </div>
+                            <div>
+                                <a asp-action="DownloadAttachment" asp-route-id="@attachment.Id" class="btn btn-sm btn-outline-primary">다운로드</a>
+                                <form asp-action="DeleteAttachment" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@attachment.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('파일을 삭제하시겠습니까?')">삭제</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-muted mb-0">첨부파일이 없습니다.</p>
+        }
+    </div>
+</div>
+
+
+<!-- 처리 이력 -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <strong>처리 이력</strong>
+    </div>
+    <div class="card-body">
+        @if (Model.Histories.Any())
+        {
+            foreach (var history in Model.Histories.OrderByDescending(x => x.CreatedAt))
+            {
+                <div class="mb-3">
+                    <div>
+                        <strong>@history.User.Name</strong>
+                        <span class="text-muted">@history.Action</span>
+                    </div>
+                    <div class="small text-muted">
+                        @history.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                    </div>
+                    @if (history.Action == "파일 업로드")
+                    {
+                        <div class="mt-1">
+                            파일: <strong>@history.AfterValue</strong>
+                        </div>
+                    }
+                    else if (history.Action == "파일 삭제")
+                    {
+                        <div class="mt-1">
+                            파일: <strong>@history.BeforeValue</strong>
+                        </div>
+                    }
+                    else if (history.BeforeValue != null || history.AfterValue != null)
+                    {
+                        <div class="mt-1">
+                            @history.BeforeValue -> @history.AfterValue
+                        </div>
+                    }
+                    @* @if (history.BeforeValue != null || history.AfterValue != null)
+                    {
+                        <div class="mt-1">
+                            @history.BeforeValue -> @history.AfterValue
+                        </div>
+                    } *@
+                </div>
+            }
+        }
+        else
+        {
+            <p class="text-muted">
+                처리 이력이 없습니다.
+            </p>
+        }
+    </div>
+</div>
+
+@functions {
+    string GetPriorityText(TicketPriority priority)
+    {
+        return priority switch
+        {
+            TicketPriority.Low => "낮음",
+            TicketPriority.Normal => "보통",
+            TicketPriority.High => "높음",
+            TicketPriority.Critical => "긴급",
+            _ => ""
+        };        
+    }
+
+    string FormatFileSize(long bytes)
+    {
+        if (bytes < 1024) return $"{bytes} B";
+        if (bytes < 1024 * 1024) return $"{bytes / 1024.0:F1} KB";
+        if (bytes < 1024 * 1024 * 1024) return $"{bytes / (1024.0 * 1024.0):F1} MB";
+
+        return $"{bytes / (1024.0 * 1024.0 * 1024.0):F1} GB";
+    }
+}

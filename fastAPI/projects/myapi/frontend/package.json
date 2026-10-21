@@ -1,0 +1,24 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
+    "svelte": "^5.55.4",
+    "vite": "^8.0.10"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.8",
+    "marked": "^18.0.3",
+    "moment": "^2.30.1",
+    "momnet": "^0.0.1-security",
+    "qs": "^6.15.1",
+    "svelte-spa-router": "^5.1.0"
+  }
+}

@@ -1,0 +1,129 @@
+﻿@model MiniDesk.ViewModels.DashboardViewModel
+@using MiniDesk.Models
+
+@{
+    ViewData["Title"] = "Dashboard";
+
+    var recentTickets = Model.RecentTickets as List<Ticket> ?? new List<Ticket>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2>Dashboard</h2>
+        <p class="text-muted mb-0">업무 요청 현황을 확인하세요.</p>
+    </div>
+    <a asp-controller="Ticket" asp-action="Create" class="btn btn-primary">+ 요청등록</a>
+</div>
+
+<!-- 통계 -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="text-muted">전체 요청</div>
+                <h2 class="mt-2">@Model.Total</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="text-muted">대기</div>
+                <h2 class="mt-2">@Model.Pending</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="text-muted">처리중</div>
+                <h2 class="mt-2">@Model.InProgress</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="text-muted">완료</div>
+                <h2 class="mt-2">@Model.Completed</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="text-muted">긴급</div>
+                <h2 class="mt-2">@Model.Critical</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 최근 요청 -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <strong>최근 요청</strong>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>제목</th>
+                    <th>상태</th>
+                    <th>우선순위</th>
+                    <th>요청자</th>
+                    <th>담당자</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ticket in recentTickets)
+                {
+                    <tr>
+                        <td>@ticket.Id</td>
+                        <td>
+                            <a asp-controller="Ticket" asp-action="Detail" asp-route-id="@ticket.Id" class="text-decoration-none">@ticket.Title</a>
+                        </td>
+                        <td>
+                            @GetStatusText(ticket.Status)
+                        </td>
+                        <td>
+                            @GetPriorityText(ticket.Priority)
+                        </td>
+                        <td>
+                            @ticket.Requester.Name
+                        </td>
+                        <td>
+                            @(ticket.Assignee?.Name ?? "-")
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@functions {
+    string GetStatusText(TicketStatus status)
+    {
+        return status switch
+        {
+            TicketStatus.Pending => "대기",
+            TicketStatus.InProgress => "처리중",
+            TicketStatus.Completed => "완료",
+            _ => ""
+        };
+    }
+
+    string GetPriorityText(TicketPriority priority)
+    {
+        return priority switch
+        {
+            TicketPriority.Low => "낮음",
+            TicketPriority.Normal => "보통",
+            TicketPriority.High => "높음",
+            TicketPriority.Critical => "긴급",
+            _ => ""
+        };
+    }
+}

@@ -1,0 +1,234 @@
+﻿@model MiniDesk.ViewModels.TicketListViewModel
+
+@using MiniDesk.Models
+
+@{
+    ViewData["Title"] = "요청 목록";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2>요청 목록</h2>
+        <p class="text-muted mb-0">전체 @Model.TotalCount 건</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">+ 요청등록</a>
+</div>
+
+<!-- 검색 -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form asp-action="Index" method="get">
+            <div class="row g-2">
+                <!-- 검색어 -->
+                <div class="col-md-4">
+                    <input type="text" 
+                        name="keyword" 
+                        value="@Model.Keyword" 
+                        class="form-control" 
+                        placeholder="제목 또는 내용 검색" />
+                </div>
+                <!-- 상태 -->
+                <div class="col-md-2">
+                    <select name="status" class="form-select">
+                        <option value="">전체 상태</option>
+                        <option value="Pending" selected="@(Model.Status == TicketStatus.Pending ? "selected" : null)">대기</option>
+                        <option value="InProgress" selected="@(Model.Status == TicketStatus.InProgress ? "selected" : null)">처리중</option>
+                        <option value="Completed" selected="@(Model.Status == TicketStatus.Completed ? "selected" : null)">완료</option>
+                    </select>
+                </div>
+
+                <!-- 우선순위 -->
+                <div class="col-md-2">
+                    <select name="priority" class="form-select">
+                        <option value="">전체 우선순위</option>
+                        <option value="Low" selected="@(Model.Priority == TicketPriority.Low ? "selected" : null)">낮음</option>
+                        <option value="Normal" selected="@(Model.Priority == TicketPriority.Normal ? "selected" : null)">보통</option>
+                        <option value="High" selected="@(Model.Priority == TicketPriority.High ? "selected" : null)">높음</option>
+                        <option value="Critical" selected="@(Model.Priority == TicketPriority.Critical ? "selected" : null)">긴급</option>
+                    </select>
+                </div>
+
+                <!-- 정렬 -->
+                <div class="col-md-2">
+                    <select name="sort" class="form-select">
+                        <option value="">최신순</option>
+                        <option value="created_asc" selected='@(Model.Sort == "created_asc" ? "selected" : null)'>오래된순</option>
+                        <option value="priority_desc" selected='@(Model.Sort == "priority_desc" ? "selected" : null)'>우선순위 높은순</option>
+                        <option value="priority_asc" selected='@(Model.Sort == "priority_asc" ? "selected" : null)'>우선순위 낮은순</option>
+                        <option value="title_asc" selected='@(Model.Sort == "title_asc" ? "selected" : null)'>제목순</option>
+                    </select>
+                </div>
+
+                <!-- 검색 -->
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">검색</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 목록 -->
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>제목</th>
+                    <th>상태</th>
+                    <th>우선순위</th>
+                    <th>요청자</th>
+                    <th>담당자</th>
+                    <th>등록일</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Tickets.Any())
+                {
+                    foreach (var ticket in Model.Tickets)
+                    {
+                        <tr>
+                            <td>@ticket.Id</td>
+                            <td>
+                                <a asp-action="Detail" asp-route-id="@ticket.Id" class="text-decoration-none">@ticket.Title</a>
+                            </td>
+                            <td>@ticket.Status</td>
+                            <td>@ticket.Priority</td>
+                            <td>@ticket.Requester.Name</td>
+                            <td>@(ticket.Assignee?.Name ?? "-")</td>
+                            <td>@ticket.CreatedAt.ToString("yyyy-MM-dd")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">검색결과가 없습니다.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 페이지네이션 -->
+@if (Model.TotalPages > 1)
+{
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            @for (var i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.Page ? "active": "")">
+                    <a class="page-link"
+                        asp-action="Index"
+                        asp-route-keyword="@Model.Keyword"
+                        asp-route-status="@Model.Status"
+                        asp-route-priority="@Model.Priority"
+                        asp-route-sort="@Model.Sort"
+                        asp-route-page="@i">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+
+
+
+@* <form method="get" class="row g-2 mb-4">
+    <div class="col-md-5">
+        <input name="keyword"
+               value="@Model.Keyword"
+               class="form-control"
+               placeholder="제목 또는 내용 검색" />
+    </div>
+    <div class="col-md-2">
+        <select name="status" class="form-select">
+            <option value="">전체 상태</option>
+            @foreach (var item in Enum.GetValues<TicketStatus>())
+            {
+                <option value="@item" selected="@(Model.Status == item)">@GetStatusText(item)</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="priority" class="form-select">
+            <option value="">전체 우선순위</option>
+            @foreach(var item in Enum.GetValues<TicketPriority>())
+            {
+                <option value="@item" selected="@(Model.Priority == item)">@GetPriorityText(item)</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-dark">검색</button>
+    </div>
+</form> *@
+
+
+
+
+@* <table class="table table-hover align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>번호</th>
+            <th>제목</th>
+            <th>상태</th>
+            <th>우선순위</th>
+            <th>요청자</th>
+            <th>담당자</th>
+            <th>등록일</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var ticket in Model.Tickets)
+        {
+            <tr>
+                <td>@ticket.Id</td>
+                <td>
+                    <a asp-action="Detail" asp-route-id="@ticket.Id" class="text-decoration-none">@ticket.Title</a>
+                </td>
+                <td>
+                    <span class="badge bg-secondary">@GetStatusText(ticket.Status)</span>
+                </td>
+                <td>
+                    @GetPriorityText(ticket.Priority)
+                </td>
+                <td>
+                    @ticket.Requester.Name
+                </td>
+                <td>
+                    @(ticket.Assignee?.Name ?? "-")
+                </td>
+                <td>
+                    @ticket.CreatedAt.ToString("yyyy-MM-dd")
+                </td>
+            </tr>
+        }
+    </tbody>
+</table> *@
+
+@functions {
+    string GetStatusText(TicketStatus status)
+    {
+        return status switch
+        {
+            TicketStatus.Pending => "대기",
+            TicketStatus.InProgress => "처리중",
+            TicketStatus.Completed => "완료",
+            _ => ""
+        };
+    }
+
+    string GetPriorityText(TicketPriority priority)
+    {
+        return priority switch
+        {
+            TicketPriority.Low => "낮음",
+            TicketPriority.Normal => "보통",
+            TicketPriority.High => "높음",
+            TicketPriority.Critical => "긴급",
+            _ => ""
+        };
+    }
+}
